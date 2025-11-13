@@ -2,6 +2,9 @@
 ARG CONTEXT=frontend
 FROM node:20-alpine AS build
 
+# re-declare ARGs so they're available inside the stage
+ARG CONTEXT
+
 WORKDIR /app
 
 # Copy package files from context (supports repo-root or service folder builds)
