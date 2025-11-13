@@ -12,8 +12,8 @@ COPY ${CONTEXT}/package*.json ./
 COPY ${CONTEXT}/tsconfig.json ./
 COPY ${CONTEXT}/vite.config.ts ./
 
-# Install dependencies
-RUN npm install
+# Use npm ci for deterministic installs
+RUN npm ci --prefer-offline --no-audit
 
 # Copy all source files, including index.html
 COPY ${CONTEXT}/ ./
