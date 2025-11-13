@@ -48,32 +48,31 @@ The docker-compose setup will load variables from `.env` automatically.
    - cp .env.example .env
    - Fill in required variables.
 
-2. Build and start services:
+2. Build and start services (pass build-arg so Dockerfiles that use ARG CONTEXT work when building from the service folders):
 
-   - docker-compose up --build -d
+   - docker compose build --build-arg CONTEXT=. && docker compose up -d
 
 3. Tail logs:
 
-   - docker-compose logs -f
+   - docker compose logs -f
 
 4. Stop and remove containers:
 
-   - docker-compose down
+   - docker compose down
 
 5. Run just one service (optional):
-   - docker-compose up --build backend
-   - docker-compose up --build frontend
+   - docker compose build --build-arg CONTEXT=. backend
+   - docker compose up backend
 
 Ports (common defaults)
 
 - Backend: 8000 (uvicorn)
-- Frontend: 5173 (Vite) or 8080 depending on scaffold
-  Adjust in docker-compose.yml if different.
+- Frontend: 5173 (Vite) or 80 inside container (nginx) — adjust in docker-compose.yml if different.
 
 Notes:
 
-- If you change .env, restart containers: docker-compose down && docker-compose up --build -d
-- If you don't have a docker-compose.yml, run services locally (see next sections).
+- Passing --build-arg CONTEXT=. lets the Dockerfiles use '.' as the internal copy prefix when you run the compose command from the service directory. If you build from repo root, set CONTEXT=frontend or CONTEXT=backend instead.
+- If you change .env, restart containers: docker compose down && docker compose build --build-arg CONTEXT=. && docker compose up -d
 
 ## Run backend (local, without Docker)
 
@@ -112,7 +111,3 @@ Change API base URL in the frontend if backend host/port differs.
 - 404 /history: Ensure `app.main` includes `from app.history import router as history_router` and `app.include_router(history_router)` and that backend container was restarted after changes.
 - ImportError on startup: avoid creating FastAPI app or running remote-client code at import time in routers; env var access should be lazy.
 - Missing env vars will cause runtime errors — verify `.env` and docker-compose environment.
-
-## License
-
-Specify your license.
