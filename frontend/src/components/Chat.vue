@@ -186,7 +186,7 @@ export default defineComponent({
 
       try {
         const apiBase =
-          (import.meta.env.VITE_API_BASE as string) || "http://0.0.0.0:8000";
+          (import.meta.env.VITE_API_BASE as string) || "http://localhost:8000";
         const url = apiBase.replace(/\/+$/, "") + "/chat";
         const res = await axios.post(url, {
           question: q,
@@ -229,7 +229,7 @@ export default defineComponent({
     const loadHistory = async () => {
       try {
         const apiBase =
-          (import.meta.env.VITE_API_BASE as string) || "http://0.0.0.0:8000";
+          (import.meta.env.VITE_API_BASE as string) || "http://localhost:8000";
         const url = apiBase.replace(/\/+$/, "") + "/history";
         const res = await axios.get(url);
         const chats = res.data?.chats || [];

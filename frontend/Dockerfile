@@ -1,18 +1,19 @@
 # Stage 1: Build
+ARG CONTEXT=frontend
 FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package files (adjusted for repo-root build context)
-COPY frontend/package*.json ./
-COPY frontend/tsconfig.json ./
-COPY frontend/vite.config.ts ./
+# Copy package files from context (supports repo-root or service folder builds)
+COPY ${CONTEXT}/package*.json ./
+COPY ${CONTEXT}/tsconfig.json ./
+COPY ${CONTEXT}/vite.config.ts ./
 
 # Install dependencies
 RUN npm install
 
 # Copy all source files, including index.html
-COPY frontend/ .
+COPY ${CONTEXT}/ ./
 
 # Build the project
 RUN npm run build
