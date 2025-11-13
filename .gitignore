@@ -26,6 +26,9 @@ venv/
 .env.*
 .env.local
 
+# allow example env to be tracked
+!.env.example
+
 # IDEs
 .vscode/
 .idea/
