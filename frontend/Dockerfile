@@ -2,34 +2,34 @@
 ARG CONTEXT=frontend
 FROM node:20-alpine AS build
 
-# re-declare ARGs so they're available inside the stage
+# redeclare ARGs for the stage
 ARG CONTEXT
+ARG VITE_API_BASE
+ENV VITE_API_BASE=${VITE_API_BASE}
 
 WORKDIR /app
 
-# Copy package files from context (supports repo-root or service folder builds)
+# Copy package files (include lockfile)
 COPY ${CONTEXT}/package*.json ./
+COPY ${CONTEXT}/package-lock.json ./
 COPY ${CONTEXT}/tsconfig.json ./
 COPY ${CONTEXT}/vite.config.ts ./
 
-# Use npm ci for deterministic installs
+# deterministic install
 RUN npm ci --prefer-offline --no-audit
 
-# Copy all source files, including index.html
+# Copy source
 COPY ${CONTEXT}/ ./
 
-# Build the project
+# Bake Vite env from the build-time variable (Railway exposes service vars during build)
+RUN printf "VITE_API_BASE=%s\n" "${VITE_API_BASE:-http://localhost:8000}" > .env.production
+
+# Build (vite will read .env.production)
 RUN npm run build
 
-# Stage 2: Serve with nginx
+# Stage 2: Serve
 FROM nginx:stable-alpine
-
-# Remove default nginx content
 RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built assets from previous stage
 COPY --from=build /app/dist /usr/share/nginx/html
-
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
