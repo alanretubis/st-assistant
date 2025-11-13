@@ -185,7 +185,10 @@ export default defineComponent({
       loading.value = true;
 
       try {
-        const res = await axios.post("http://0.0.0.0:8000/chat", {
+        const apiBase =
+          (import.meta.env.VITE_API_BASE as string) || "http://0.0.0.0:8000";
+        const url = apiBase.replace(/\/+$/, "") + "/chat";
+        const res = await axios.post(url, {
           question: q,
         });
         // read the current chat fresh from the reactive array (non-undefined)
@@ -225,7 +228,10 @@ export default defineComponent({
 
     const loadHistory = async () => {
       try {
-        const res = await axios.get("http://0.0.0.0:8000/history");
+        const apiBase =
+          (import.meta.env.VITE_API_BASE as string) || "http://0.0.0.0:8000";
+        const url = apiBase.replace(/\/+$/, "") + "/history";
+        const res = await axios.get(url);
         const chats = res.data?.chats || [];
         if (Array.isArray(chats) && chats.length > 0) {
           // replace local chatList with history (preserve ordering: most recent first -> put oldest first)
