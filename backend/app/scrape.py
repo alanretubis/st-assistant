@@ -4,15 +4,31 @@ from openai import OpenAI
 from app.db import index
 import hashlib
 import os
+from pathlib import Path
+import json
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-URLS = {
+_config_path = Path(__file__).with_name("urls.json")
+
+# Default data
+default_urls = {
     "Alaska": "https://www.shermanstravel.com/cruise-destinations/alaska-itineraries",
     "Caribbean": "https://www.shermanstravel.com/cruise-destinations/caribbean-and-bahamas",
     "Hawaiian": "https://www.shermanstravel.com/cruise-destinations/hawaiian-islands",
     "Northern Europe": "https://www.shermanstravel.com/cruise-destinations/northern-europe"
 }
+
+# Load or create file
+if _config_path.exists():
+    with _config_path.open("r", encoding="utf-8") as _f:
+        URLS = json.load(_f)
+else:
+    URLS = default_urls
+    # Create the file
+    with _config_path.open("w", encoding="utf-8") as _f:
+        json.dump(default_urls, _f, indent=4, ensure_ascii=False)
+    print(f"Created {_config_path.name} with default URLs.")
 
 def clean_text(html):
     soup = BeautifulSoup(html, "html.parser")
@@ -45,4 +61,4 @@ def scrape_and_upsert():
                 (uid, embedding, {"url": url, "text": chunk})
             ])
 
-    return {"status": "done"}
+    return {"status": "Done Scraping"}
